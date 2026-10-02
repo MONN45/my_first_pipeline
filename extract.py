@@ -1,5 +1,6 @@
 
 import requests
+from http_utils import get_with_retry
 
 url  = "https://jsonplaceholder.typicode.com/posts"
 
@@ -13,14 +14,16 @@ def get_posts( page_size =25 ,max_post = 100):
         for page_number in range(start, max_post+1):
             params = {"_start" :start ,"_limit" : page_size}
 
-            response = requests.get(url,params=params,timeout=10)
+            page = get_with_retry(url, params=params)
+           
 
-            response.raise_for_status()
+            #page = response.json()
 
-            page = response.json()
-
-            print(len(page))
+            #print(len(page))
             # print(page)
+            if page is None:
+                print(f"Failed to fetch page {page_number}. Stopping further requests.")
+                break
 
             print("*****************")
             all_posts.extend(page)
